@@ -1,7 +1,8 @@
 'use strict';
 
 const state = []; //this is the state or important data to this app
-let roundsOfVoting = 29;
+let roundsOfVoting = 25;
+let chartObj = null;
 
 function Image(name, source) {
   this.name = name;
@@ -19,7 +20,7 @@ state.push(new Image('breakfast', 'images/breakfast.jpeg'));
 state.push(new Image('bubblegum', 'images/bubblegum.jpeg'));
 state.push(new Image('chair', 'images/chair.jpeg'));
 state.push(new Image('cthulhu', 'images/cthulhu.jpeg'));
-state.push(new Image('dog duck', 'images/dog-duck.jpeg'));
+state.push(new Image('dog-duck', 'images/dog-duck.jpeg'));
 state.push(new Image('dragon', 'images/dragon.jpeg'));
 state.push(new Image('pet sweep', 'images/pet-sweep.jpeg'));
 state.push(new Image('scissors', 'images/scissors.jpeg'));
@@ -38,29 +39,31 @@ console.log('currently rendered images', imgEls);
 
 console.log('current state', state); //looking for current state here
 
-// renedering our first duck image
-imgEls[0].src = state[0].source;
-imgEls[0].src = state[0].name;
-imgEls[1].src = state[1].source;
-imgEls[1].src = state[1].name;
-imgEls[2].src = state[2].source;
-imgEls[2].src = state[2].name;
-renderDucks();
 
 function generateRandomDucks() {
   return Math.floor(Math.random() * state.length);
 }
 
-function renderDucks() {
-  //find some ducks from state
-  let duck1 = generateRandomDucks();
-  let duck2 = generateRandomDucks();
-  let duck3 = generateRandomDucks();
+// //  old renedering our first duck image
+// imgEls[0].src = state[0].source;
+// imgEls[0].src = state[0].name;
+// imgEls[1].src = state[1].source;
+// imgEls[1].src = state[1].name;
+// imgEls[2].src = state[2].source;
+// imgEls[2].src = state[2].name;
+// renderDucks();
+
+
+
+function renderDucks() { //find some ducks from state
+  let duck1 = state[generateRandomDucks()];
+  let duck2 = state[generateRandomDucks()];
+  let duck3 = state[generateRandomDucks()];
   console.log('goats to re-render', imgEls, duck1, duck2, duck3);
-  while (duck1.name === duck2.name === duck3.name) {
+  while (duck1.name === duck2.name || duck1.name === duck3.name || duck2.name === duck3.name) {
+    duck2 = state[generateRandomDucks()];
     duck3 = state[generateRandomDucks()];
   }
-
 
   //fresh goats here 
   imgEls[0].src = duck1.source;
@@ -74,7 +77,176 @@ function renderDucks() {
   duck3.timesShown += 1;
 }
 
-let eventId = voteTrackerEl.addEventListener('click', function(event) {
+function buttonResults(){
+  const ul = document.getElementById('results');
+  ul.innerHTML = '';
+  const li = document.createElement('li');
+  if(roundsOfVoting > 0){
+    let text = ('Sorry, you need to vote ' + roundsOfVoting + ' more times to see results!');
+    li.appendChild(document.createTextNode(text));
+    ul.appendChild(li);
+  } else {
+    for(let h = 0; h < state.length; h++){
+      let text = (state[h].name + ' had ' + state[h].timesClicked + ' votes and was seen ' + state[h].timesShown + ' times.');
+      let lis = document.createElement('li');
+      lis.appendChild(document.createTextNode(text));
+      ul.appendChild(lis);
+      console.log('loop ran');
+    }
+  }
+}
+
+function handleClick(event){
+  let imgClicked = event.target.id;
+  state.forEach(image => {
+    if(image.name === imgClicked){
+      image.timesClicked += 1;
+    }
+  });
+  console.log('Updated Products: ', state);
+  if(roundsOfVoting){
+    renderDucks();
+    roundsOfVoting--;
+  } else {
+    voteTrackerEl.removeEventListener('click', handleClick);
+  }
+}
+
+renderDucks();
+voteTrackerEl.addEventListener('click', handleClick);
+
+
+
+//CLASS REVIEW STARTS HERE
+function drawChart() {
+  let labels = [];
+  let timesShown = [];
+  let timesClicked = [];
+  state.forEach(product =>{
+    labels.push(product.name);
+    timesShown.push(product.timesShown);
+    timesClicked.push(product.timesClicked);
+  });
+  return new Chart(canvasEl, {
+    type: 'bar',
+    data: {
+      labels: labels, //how can we name our ducks 
+      datasets: [{
+        label: 'Times Shown',
+        data: timesShown,
+      }, {
+        label: 'Times Clicked',
+        data: timesClicked,
+        borderWidth: 1
+      }]
+    },
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true 
+        }
+      }
+    }
+
+  });
+}
+
+const canvasEl = document.getElementById('chart');
+
+// new Chart(canvasEl, {
+//   type:
+//   data: {
+//     labels: [], //how can we name our ducks 
+//     datasets: [{
+//       label: 'Times Shown',
+//       data: []
+//     }, {
+//       label: 'Times Clicked',
+//       data: [],
+//       borderWidth: 1
+//     }]
+//   },
+//  options: {
+//   scales: {
+//     y: {
+//       beginAtZero: true 
+//     }
+//   }
+//  }
+
+
+
+// //declare what context we want to draw
+// const drawingContext = canvasEl.getContext('2d');
+
+// //first 2 arugments, location on canvas for 1st pixel
+// // 2nd 3 arguements, (height and width)
+// drawingContext.strokeRect(0, 0, 20, 20);
+// drawingContext.strokeRect(20, 0, 20, 20);
+// drawingContext.clearRect(0, 0, canvasEl.width, canvasEl.height); //erases previous growing squares
+
+// // //will make 10 rectangles that get gradually bigger
+
+// let scale = 1;
+// function drawRectangle() {
+//   let x =40;
+//   let y = 0;
+//   let height = 20;
+//   let width = 20;
+//   drawingContext.strokeRect(x, y, height, width);
+// }
+
+// setInterval(() => {
+//   drawRectangle(scale +1);
+// }, 1000);
+
+
+
+// //chart.js input
+// let chartObj = new Chart(drawingContext, {
+//   type: 'bar',
+//   data: {
+//     labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+//     datasets: [{
+//       label: '# of Votes',
+//       data: [12, 19, 3, 5, 2, 3],
+//       borderWidth: 1
+//     }]
+//   },
+//   options: {
+//     scales: {
+//       y: {
+//         beginAtZero: true
+//       }
+//     }
+//   }
+// });
+
+
+//   // look at all object inside of state
+//   state.forEach(duck => {
+// }
+
+
+// let buttonEl = document.getElementById
+// buttonEl.addEventListener('click', function(){
+//   updateChart([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]);
+// }; 
+
+
+// function updateChart(){
+//   console.log('CHART OBJECT UPDATE', chartObj.data)
+//   chartObj.data.datasets[0].data =data; 
+//   chartObj.update();
+// }
+
+
+
+
+
+
+
+/*let eventId = voteTrackerEl.addEventListener('click', function(event) {
   console.log(event.target); //event.target always represents the exact element where event occured
 
 
@@ -94,7 +266,7 @@ let eventId = voteTrackerEl.addEventListener('click', function(event) {
   } else {
     voteTrackerEl.removeEventListener();
   }
-});
+});*/
 
 
 

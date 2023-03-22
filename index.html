@@ -7,19 +7,39 @@
     <title>Odd Duck</title>
     <link rel="resetsheet" href="reset.css">
     <link rel="stylesheet" href="style.css">
+    <!-- loads from a CDN (content delivery network) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-  <header>
+  <header class="row">
     <h1>Odd Ducks Next Big Thing</h1>
   </header>
   <main>
-    <section id ="tracks-votes">
-      <!-- <img src="banana.jpeg"> -->
+    <section class="row">
+      <section class="column" id="resultsbButton">
+        <button onclick="resultsButton()" id="buttonResults">
+            <p id="button">Results</p>
+        </button>
+        <ul id="result"></ul> 
+      </section>
+    <section class="column" id="imagesDescription"> 
+      <section id ="tracks-votes">
       <img>
       <img>
       <img>
     </section>
+    <section>
+      <h2>Canvas Context & Chart Here</h2>
+      <canvas id="chart" width="300px" height= "300px"></canvas>
+      <!-- <button id="update-chart">Refresh</button> -->
+    </section>
+    <section>
+      <p> Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam voluptatum aliquid ipsam iure non facilis, eum quo ratione at, laborum, assumenda perferendis debitis culpa in repellendus tenetur ipsa recusandae quas. Lorem ipsum dolor, sit amet consectetur adipisicing elit. Beatae soluta culpa harum ullam veniam blanditiis sint doloribus temporibus vero ad adipisci maiores accusantium saepe quas, laborum aperiam nesciunt, recusandae reprehenderit?</p>
+    </section>
   </main>
+  <footer>
+    <p>&copy; Coriana Williams</p>
+  </footer>
   <script src="js/app.js"></script>
 </body>
 </html>
