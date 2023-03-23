@@ -6,9 +6,9 @@ let chartObj = null;
 
 function Image(name, source) {
   this.name = name;
+  this.source = source;
   this.timesClicked = 0;
   this.timesShown = 0;
-  this.source = source;
 }
 
 state.push(new Image('bag', 'images/bag.jpg'));
@@ -32,10 +32,10 @@ state.push(new Image('water can', 'images/water-can.jpeg'));
 state.push(new Image('wine glass', 'images/wine-glass.jpeg'));
 
 let imgEls = document.querySelectorAll('img'); //array like thing  filled with all the img elements in my html
-let voteTrackerEl = document.getElementById('vote-tracker');
+let trackVotesEl = document.getElementById('track-votes');
 
 
-console.log('currently rendered images', imgEls);
+// console.log('currently rendered images', imgEls);
 
 console.log('current state', state); //looking for current state here
 
@@ -44,56 +44,55 @@ function generateRandomDucks() {
   return Math.floor(Math.random() * state.length);
 }
 
-// //  old renedering our first duck image
-// imgEls[0].src = state[0].source;
-// imgEls[0].src = state[0].name;
-// imgEls[1].src = state[1].source;
-// imgEls[1].src = state[1].name;
-// imgEls[2].src = state[2].source;
-// imgEls[2].src = state[2].name;
-// renderDucks();
+
+// function renderDucks() { //find some ducks from state
+//  let duck1, duck2, duck3;
+//  do {
+//   let duck1 = state[generateRandomDucks()];
+//   let duck2 = state[generateRandomDucks()];
+//   let duck3 = state[generateRandomDucks()];
+//  } while (
+//   otherDucks.includes(duck1) || 
+//   otherDucks.includes(duck2) || 
+//   otherDucks.includes(duck3) || 
+//   duck1 === duck2 || 
+//   duck1 === duck3 || 
+//   duck2 === duck3 
+//   };
+
+//   otherDucks = [duck1, duck2, duck3];
 
 
-
-function renderDucks() { //find some ducks from state
+function renderDucks() {
   let duck1 = state[generateRandomDucks()];
   let duck2 = state[generateRandomDucks()];
   let duck3 = state[generateRandomDucks()];
-  console.log('goats to re-render', imgEls, duck1, duck2, duck3);
-  while (duck1.name === duck2.name || duck1.name === duck3.name || duck2.name === duck3.name) {
+  // console.log('Products to Render ', imgEls, product1, product2, product3);
+  while (duck1.name === duck2.name || duck1.name === duck3.name || duck2.name === duck3.name){
     duck2 = state[generateRandomDucks()];
     duck3 = state[generateRandomDucks()];
   }
-
-  //fresh goats here 
-  imgEls[0].src = duck1.source;
-  imgEls[0].src = duck1.name;
-  duck1.timesShown += 1;
-  imgEls[1].src = duck2.source;
-  imgEls[1].src = duck2.name;
-  duck2.timesShown += 1;
-  imgEls[2].src = duck3.source;
-  imgEls[2].src = duck3.name;
-  duck3.timesShown += 1;
-}
-
-function buttonResults(){
-  const ul = document.getElementById('results');
-  ul.innerHTML = '';
-  const li = document.createElement('li');
-  if(roundsOfVoting > 0){
-    let text = ('Sorry, you need to vote ' + roundsOfVoting + ' more times to see results!');
-    li.appendChild(document.createTextNode(text));
-    ul.appendChild(li);
-  } else {
-    for(let h = 0; h < state.length; h++){
-      let text = (state[h].name + ' had ' + state[h].timesClicked + ' votes and was seen ' + state[h].timesShown + ' times.');
-      let lis = document.createElement('li');
-      lis.appendChild(document.createTextNode(text));
-      ul.appendChild(lis);
-      console.log('loop ran');
+  // console.log('RENDERED IMAGES ', imgEls);
+  // console.log('FUTURE IMAGES ', product1.name, product2.name, product3.name);
+  while (imgEls[0].id === duck1.name || imgEls[0].id === duck2.name || imgEls[0].id === duck3.name || imgEls[1].id === duck1.name || imgEls[1].id === duck2.name || imgEls[1].id === duck3.name || imgEls[2].id === duck1.name || imgEls[2].id === duck2.name || imgEls[2].id === duck3.name){
+    duck1 = state[generateRandomDucks()];
+    duck2 = state[generateRandomDucks()];
+    duck3 = state[generateRandomDucks()];
+    while (duck1.name === duck2.name || duck1.name === duck3.name || duck2.name === duck3.name){
+      duck2 = state[generateRandomDucks()];
+      duck3 = state[generateRandomDucks()];
     }
   }
+  //fresh goats here
+  imgEls[0].src = duck1.source;
+  imgEls[0].id = duck1.name;
+  duck1.timesShown += 1;
+  imgEls[1].src = duck2.source;
+  imgEls[1].id = duck2.name;
+  duck2.timesShown += 1;
+  imgEls[2].src = duck3.source;
+  imgEls[2].id = duck3.name;
+  duck3.timesShown += 1;
 }
 
 function handleClick(event){
@@ -103,55 +102,176 @@ function handleClick(event){
       image.timesClicked += 1;
     }
   });
-  console.log('Updated Products: ', state);
-  if(roundsOfVoting){
+  // console.log('Updated Products: ', productsList);
+  if(roundsOfVoting > 1){
     renderDucks();
     roundsOfVoting--;
   } else {
-    voteTrackerEl.removeEventListener('click', handleClick);
+    trackVotesEl.removeEventListener('click', handleClick);
+    chartObj = drawChart();
+    roundsOfVoting--;
+    writeData('products', state);
   }
 }
 
+trackVotesEl.addEventListener('click', handleClick);
+
+if (readData('products') === null){
+  '';
+} else {
+  readData('products');
+}
+
 renderDucks();
-voteTrackerEl.addEventListener('click', handleClick);
+
+function writeData(key, value) {
+  localStorage.setItem(key, JSON.stringify(value));
+}
+
+function readData(key){
+  return JSON.parse(localStorage.getItem(key));
+}
+
+console.log('PRODUCTS LIST AFTER CLICKS', state);
+console.log('LOCAL STORAGE AFTER CLICKS', localStorage);
 
 
 
-//CLASS REVIEW STARTS HERE
+// const canvasEl = document.getElementById('chart');
+
+
+
+// function handleClick(event){
+//   let imgClicked = event.target.id;
+//   state.forEach(image => {
+//     if(image.name === imgClicked){
+//       image.timesClicked += 1;
+//     }
+//   });
+//   console.log('Updated State', state);
+//   if(roundsOfVoting){
+//     renderDucks();
+//     roundsOfVoting--;
+//   } else {
+//     voteTrackerEl.removeEventListener('click', handleClick);
+//     let buttonEl = document.getElementById('viewResultsButton');
+//     console.log('Button Here', buttonEl);
+//     buttonEl.addEventListener('click', generateResults);
+//     alert('All votes reached, thank you!');
+//     activeButton.style.backgroundColor = 'purple';
+//     activeButton.style.cursor = 'pointer';
+//   }
+// }
+
+// voteTrackerEl.addEventListener('click', handleImageClick);
+
+
+
+// function generateResults(event) {
+
+
+  // // Prepare chart data
+  // const productLabels = state.map(product => product.name);
+  // const votesData = state.map(product => product.timesClicked);
+  // const viewsData = state.map(product => product.timesShown);
+
+
+const canvasEL = document.getElementById('chart');
+
 function drawChart() {
   let labels = [];
   let timesShown = [];
   let timesClicked = [];
-  state.forEach(product =>{
+  state.forEach(product => {
     labels.push(product.name);
     timesShown.push(product.timesShown);
     timesClicked.push(product.timesClicked);
   });
-  return new Chart(canvasEl, {
+
+  // // Get canvas context
+  // const ctx = document.getElementById('results-chart').getContext('2d');
+
+  // Create the bar chart
+  return new Chart(canvasEL, {
     type: 'bar',
     data: {
-      labels: labels, //how can we name our ducks 
+      labels: labels,
       datasets: [{
         label: 'Times Shown',
         data: timesShown,
+        borderWidth: 1,
       }, {
         label: 'Times Clicked',
         data: timesClicked,
-        borderWidth: 1
+        borderWidth: 1,
       }]
     },
     options: {
+      indexAxis: 'y',
       scales: {
         y: {
-          beginAtZero: true 
+          beginAtZero: true
         }
       }
     }
-
   });
 }
 
-const canvasEl = document.getElementById('chart');
+
+
+
+
+
+
+
+
+
+
+// voteTrackerEl.addEventListener('click', handleClick);
+
+
+
+//CLASS REVIEW STARTS HERE
+// function drawChart() {
+//   let labels = [];
+//   let timesShown = [];
+//   let timesClicked = [];
+//   state.forEach(product =>{
+//     labels.push(product.name);
+//     timesShown.push(product.timesShown);
+//     timesClicked.push(product.timesClicked);
+//   });
+//   return new Chart(canvasEl, {
+//     type: 'bar',
+//     data: {
+//       labels: labels, //how can we name our ducks 
+//       datasets: [{
+//         label: 'Times Shown',
+//         data: timesShown,
+//       }, {
+//         label: 'Times Clicked',
+//         data: timesClicked,
+//         borderWidth: 1
+//       }]
+//     },
+//     options: {
+//       scales: {
+//         y: {
+//           beginAtZero: true 
+//         }
+//       }
+//     }
+
+//   });
+// }
+
+// const canvasEl = document.getElementById('chart');
+
+
+
+
+
+
 
 // new Chart(canvasEl, {
 //   type:
